@@ -1,0 +1,6 @@
+LSRRB (Linux Software RAID - Redundant Boot) is a solution
+that uses in-distro open-source software to configure and build a two-disk
+RAID1 redundant boot volume in UEFI mode.
+
+Please refer to below document for details:
+http://h20564.www2.hpe.com/hpsc/doc/public/display?docId=c05316102
