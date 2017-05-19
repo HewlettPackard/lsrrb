@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 # This script regularly polls if md recovery is needed at background.
-# Rev 1.1 04/26/2017
+# Rev 1.2 05/19/2017
 
 import sys
 import subprocess
@@ -43,6 +43,7 @@ MDSTAT = '/proc/mdstat'
 PARTUUID = '/dev/disk/by-partuuid'
 KEY = '/tmp/md_resync.key'
 MOUNTS = '/proc/mounts'
+LSRRB_ESP_SOURCE_PART = '/etc/lsrrb/esp_source_part'
 
 # define cycles
 BACKUP_ESP_CYCLE = 1800 # per 30 minutes
@@ -113,11 +114,11 @@ def resync(new_disk):
     # STEP #3: Clone the ESP to the new disk
     print >> log, 'STEP #3 --- ' + time.strftime("%c")
     if 'nvme' in src_disk:
-	print >> log, DD + ' if=/dev/' + src_disk + 'p1 of=/dev/' + new_disk + 'p1'
-    	subprocess.call([DD, 'if=/dev/' + src_disk + 'p1', 'of=/dev/' + new_disk + 'p1'])
+	print >> log, DD + ' if=/dev/' + src_disk + 'p1 of=/dev/' + new_disk + 'p1' + ' seek=1 skip=1'
+    	subprocess.call([DD, 'if=/dev/' + src_disk + 'p1', 'of=/dev/' + new_disk + 'p1', 'seek=1', 'skip=1'])
     else:
-    	print >> log, DD + ' if=/dev/' + src_disk + '1 of=/dev/' + new_disk + '1'
-    	subprocess.call([DD, 'if=/dev/' + src_disk + '1', 'of=/dev/' + new_disk + '1'])
+    	print >> log, DD + ' if=/dev/' + src_disk + '1 of=/dev/' + new_disk + '1' + ' seek=1 skip=1'
+    	subprocess.call([DD, 'if=/dev/' + src_disk + '1', 'of=/dev/' + new_disk + '1', 'seek=1', 'skip=1'])
     print >> log, SYNC
     subprocess.call([SYNC])
 
@@ -209,11 +210,8 @@ def is_clean():
 def backup_esp():
     # Identify the src to do backup
     src = None
-    mounts = open(MOUNTS, 'r')
-    for line in mounts:
-        if '/boot/efi' in line:
-            src = line.split()[0]
-    mounts.close()
+    esp_src = open(LSRRB_ESP_SOURCE_PART, 'r')
+    src = esp_src.readline().strip()
 
     # Get the dst
     dst = None
@@ -244,8 +242,8 @@ def backup_esp():
 
     # Start the backup
     if src and dst:
-        print >> log, DD + ' if=' + src + ' of=' + dst
-        subprocess.call([DD, 'if=' + src, 'of=' + dst])
+        print >> log, DD + ' if=' + src + ' of=' + dst + ' seek=1 skip=1'
+        subprocess.call([DD, 'if=' + src, 'of=' + dst, 'seek=1', 'skip=1'])
         print >> log, SYNC
         subprocess.call([SYNC])
 
