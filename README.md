@@ -8,4 +8,4 @@ http://downloads.linux.hpe.com/SDR/project/lsrrb/
 
 Please check the user guide from below URL:
 
-http://h20564.www2.hpe.com/hpsc/doc/public/display?docId=c05316102
+http://h20564.www2.hpe.com/hpsc/doc/public/display?docId=a00017763en_us
