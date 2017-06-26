@@ -10,5 +10,5 @@ Please check the user guide from below URL:
 
 http://h20564.www2.hpe.com/hpsc/doc/public/display?docId=a00017763en_us (2017/Jun)
 
-For errata found in the 2017/Jun User Guide, please see Errata.md
+For errata found in the 2017/Jun User Guide, please see https://github.com/HewlettPackard/lsrrb/blob/master/Errata.md
 
