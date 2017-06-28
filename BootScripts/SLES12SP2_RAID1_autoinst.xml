@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #!/bin/sh
 
 mkdir -p /etc/lsrrb
-PARTUUID=`blkid /dev/sda1 | sed -n 's/.*PARTUUID=\"\([^\"]*\)\".*/\1/p'`
+PARTUUID=`sgdisk --info 1 /dev/sda | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
 echo "Saving esp_source (/dev/sda1) to /etc/lsrrb (/dev/sda1, $PARTUUID)"
 echo "/dev/sda1" > /etc/lsrrb/esp_source_part
 echo $PARTUUID > /etc/lsrrb/esp_source_partuuid

@@ -31,7 +31,7 @@ SGDISK = '/sbin/sgdisk'
 if not os.path.isfile(SGDISK):
     SGDISK = '/usr/sbin/sgdisk'
 SYNC = 'sync'
-DD = 'dd'
+DD = '/bin/dd'
 if not os.path.isfile(DD):
     DD = '/usr/bin/dd'
 LS = 'ls'
@@ -40,7 +40,6 @@ EFIBOOTMGR = 'efibootmgr'
 # define files
 LOG = '/var/log/md_auto_resync.log'
 MDSTAT = '/proc/mdstat'
-PARTUUID = '/dev/disk/by-partuuid'
 KEY = '/tmp/md_resync.key'
 MOUNTS = '/proc/mounts'
 LSRRB_ESP_SOURCE_PART = '/etc/lsrrb/esp_source_part'
@@ -125,19 +124,16 @@ def resync(new_disk):
     # STEP #4: Re-create the EFI boot entry
     print >> log, 'STEP #4 --- ' + time.strftime("%c")
     # get UUID of the src_disk's ESP
-    print >> log, LS + ' -l ' + PARTUUID
-    proc = subprocess.Popen([LS, '-l', PARTUUID], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print >> log, SGDISK + ' --info 1 /dev/' + src_disk
+    proc = subprocess.Popen([SGDISK, '--info', '1', '/dev/' + src_disk], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     output, err = proc.communicate()
-    uuid = None
-    for line in output.splitlines():
-        if 'nvme' in src_disk:
-            if (src_disk + 'p1') in line:
-                uuid = line.split()[8]
-                break
-        else:
-            if (src_disk + '1') in line:
-                uuid = line.split()[8]
-                break
+    target = output.splitlines()
+    target = target[1]
+    target = target.split()
+    uuid = target[3]
+    uuid = uuid.lower()
+    if len(uuid) !=36:
+        uuid = None
     if not uuid:
         print >> log, "Error! UUID is NULL."
         return

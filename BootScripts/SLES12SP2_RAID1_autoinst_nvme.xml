@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #!/bin/sh
 
 mkdir -p /etc/lsrrb
-PARTUUID=`blkid /dev/nvme0n1p1 | sed -n 's/.*PARTUUID=\"\([^\"]*\)\".*/\1/p'`
+PARTUUID=`sgdisk --info 1 /dev/nvme0n1 | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
 echo "Output PARTUUID of /dev/nvme0n1p1 to /etc/lsrrb/esp_source.cfg ($PARTUUID)"
 echo $PARTUUID > /etc/lsrrb/esp_source_partuuid
 echo "/dev/nvme0n1p1" > /etc/lsrrb/esp_source_part

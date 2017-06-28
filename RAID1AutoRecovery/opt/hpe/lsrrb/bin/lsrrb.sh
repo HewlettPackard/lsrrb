@@ -23,7 +23,17 @@ fi
 
 BOOTCURRENT=`efibootmgr -v | grep BootCurrent | cut -c 14-`
 ESP_SOURCE_PARTUUID=`efibootmgr -v | grep $BOOTCURRENT | grep EFI | sed -n 's/^.*HD(\s*\(\S*\))File.*$/\1/p' | cut -d"," -f4`
-ESP_SOURCE_PART=`blkid | grep $ESP_SOURCE_PARTUUID | cut -d":" -f1`
+
+SDA_PARTUUID=`sgdisk --info 1 /dev/sda | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
+SDB_PARTUUID=`sgdisk --info 1 /dev/sdb | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
+
+
+if [ $SDA_PARTUUID == $ESP_SOURCE_PARTUUID ]; then
+    ESP_SOURCE_PART="/dev/sda1"
+fi
+if [ $SDB_PARTUUID == $ESP_SOURCE_PARTUUID ]; then
+    ESP_SOURCE_PART="/dev/sdb1"
+fi
 
 echo $ESP_SOURCE_PART > /etc/lsrrb/esp_source_part
 echo $ESP_SOURCE_PARTUUID > /etc/lsrrb/esp_source_partuuid
