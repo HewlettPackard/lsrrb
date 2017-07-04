@@ -21,7 +21,7 @@ Generate a bash script (e.g. upgrade_lsrrb.sh) containing the following lines:
 
 Note: the above lines assume /dev/sda1 is the current booting volume. Replace with correct one when needed.
 
-    sh ./upgrade_lsrrb.sh
+    # sh ./upgrade_lsrrb.sh
 
 # Step 3: Install LSRRB package
 
