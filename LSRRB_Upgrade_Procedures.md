@@ -25,4 +25,4 @@ Note: the above lines assume /dev/sda1 is the current booting volume. Replace wi
 
 # Step 3: Install LSRRB package
 
-    # rpm -ivh lsrrb-1.2.0-2.x86_64.rpm
+    # rpm -ivh lsrrb-1.2.0-3.x86_64.rpm
