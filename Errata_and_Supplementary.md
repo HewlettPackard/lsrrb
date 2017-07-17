@@ -1,5 +1,11 @@
 The is the placeholder for any errata found in the 2017/Jun User Guide. Supplementary documents will be put here too.
 
+* Errata/Updates:
+
+| Description | Original Content | Updated Content | Date |
+|------|------|------|------|
+| Version bump | lsrrb-1.2.0-2 | lsrrb-1.2.0-3 | Jul-17-2017 |
+
 * Supplementary:
 
 | Document Title | Diff | Status | Date |
