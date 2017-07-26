@@ -39,7 +39,7 @@ echo $ESP_SOURCE_PART > /etc/lsrrb/esp_source_part
 echo $ESP_SOURCE_PARTUUID > /etc/lsrrb/esp_source_partuuid
 
 umount /boot/efi
-mount $ESP_SOURCE_PART /boot/efi
+mount -o defaults,uid=0,gid=0,umask=0077,shortname=winnt $ESP_SOURCE_PART /boot/efi
 
 /opt/hpe/lsrrb/bin/md_auto_resync.py &
 /opt/hpe/lsrrb/bin/HPEtemp.sh &
