@@ -5,6 +5,7 @@ The is the placeholder for any errata found in the 2017/Jun User Guide. Suppleme
 | Description | Original Content | Updated Content | Date |
 |------|------|------|------|
 | Version bump | lsrrb-1.2.0-2 | lsrrb-1.2.0-3 | Jul-17-2017 |
+| Version bump | lsrrb-1.2.0-3 | lsrrb-1.2.0-4 | Aug-8-2017 |
 
 * Supplementary:
 
