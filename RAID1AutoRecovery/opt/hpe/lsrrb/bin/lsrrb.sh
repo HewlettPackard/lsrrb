@@ -22,7 +22,7 @@ if [ ! -d /etc/lsrrb ]; then
 fi
 
 BOOTCURRENT=`efibootmgr -v | grep BootCurrent | cut -c 14-`
-ESP_SOURCE_PARTUUID=`efibootmgr -v | grep $BOOTCURRENT | grep EFI | sed -n 's/^.*HD(\s*\(\S*\))File.*$/\1/p' | cut -d"," -f4`
+ESP_SOURCE_PARTUUID=`efibootmgr -v | grep Boot$BOOTCURRENT | cut -d"," -f3`
 
 SDA_PARTUUID=`sgdisk --info 1 /dev/sda | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
 SDB_PARTUUID=`sgdisk --info 1 /dev/sdb | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
