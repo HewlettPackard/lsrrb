@@ -22,7 +22,12 @@ if [ ! -d /etc/lsrrb ]; then
 fi
 
 BOOTCURRENT=`efibootmgr -v | grep BootCurrent | cut -c 14-`
-ESP_SOURCE_PARTUUID=`efibootmgr -v | grep Boot$BOOTCURRENT | cut -d"," -f3`
+ESP_SOURCE_PARTUUID_STRING=`efibootmgr -v | grep Boot$BOOTCURRENT`
+if [[ $ESP_SOURCE_PARTUUID_STRING == *"GPT"* ]]; then
+    ESP_SOURCE_PARTUUID=`echo $ESP_SOURCE_PARTUUID_STRING | cut -d"," -f3`
+else
+    ESP_SOURCE_PARTUUID=`echo $ESP_SOURCE_PARTUUID_STRING | cut -d"," -f4 | cut -d")" -f1`
+fi
 
 SDA_PARTUUID=`sgdisk --info 1 /dev/sda | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
 SDB_PARTUUID=`sgdisk --info 1 /dev/sdb | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
