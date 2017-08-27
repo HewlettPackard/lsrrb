@@ -7,6 +7,7 @@ The is the placeholder for any errata found in the 2017/Jun User Guide. Suppleme
 | Version bump | lsrrb-1.2.0-2 | lsrrb-1.2.0-3 | Jul-17-2017 |
 | Version bump | lsrrb-1.2.0-3 | lsrrb-1.2.0-4 | Aug-8-2017 |
 | Version bump | lsrrb-1.2.0-4 | lsrrb-1.2.0-5 | Aug-15-2017 |
+| Version bump | lsrrb-1.2.0-5 | lsrrb-1.2.0-6 | Aug-27-2017 |
 
 * Supplementary:
 
