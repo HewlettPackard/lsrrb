@@ -56,8 +56,8 @@ efibootmgr -o $MAIN_SUSE,$REDUNDANT_SUSE,$BOOT_ORDER
 # Install LSRRB scripts
 echo "Install LSRRB scripts"
 
-wget -P /tmp/ http://172.1.1.100/answers/mdsync/lsrrb-1.2.0-5.x86_64.rpm
-rpm -i /tmp/lsrrb-1.2.0-5.x86_64.rpm
+wget -P /tmp/ http://172.1.1.100/answers/mdsync/lsrrb-latest.x86_64.rpm
+rpm -i /tmp/lsrrb-latest.x86_64.rpm
 
 ]]>
         </source>
