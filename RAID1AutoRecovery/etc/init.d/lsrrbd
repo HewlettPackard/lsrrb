@@ -31,8 +31,7 @@ N=/etc/init.d/lsrrbd
 
 case "$1" in
   start)
-    /opt/hpe/lsrrb/bin/md_auto_resync.py &
-    /opt/hpe/lsrrb/bin/HPEtemp.sh &
+    /opt/hpe/lsrrb/bin/lsrrb.sh
     ;;
   stop|reload|restart|force-reload|status)
     ;;
