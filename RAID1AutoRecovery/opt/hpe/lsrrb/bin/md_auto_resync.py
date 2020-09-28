@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # (c) Copyright [2017] Hewlett Packard Enterprise Development LP
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,8 @@
 #
 # This script regularly polls if md recovery is needed at background.
 # Rev 1.2 05/19/2017
-
+from __future__ import print_function
+from __future__ import unicode_literals
 import sys
 import subprocess
 import time
@@ -30,6 +31,8 @@ MDADM = '/sbin/mdadm'
 SGDISK = '/sbin/sgdisk'
 if not os.path.isfile(SGDISK):
     SGDISK = '/usr/sbin/sgdisk'
+if not os.path.isfile(SGDISK):
+    SGDISK = '/opt/hpe/lsrrb/bin/sgdisk'
 SYNC = 'sync'
 DD = '/bin/dd'
 if not os.path.isfile(DD):
@@ -49,11 +52,11 @@ BACKUP_ESP_CYCLE = 1800 # per 30 minutes
 #BACKUP_ESP_CYCLE = 30 # debugging
 
 # print to log file
-log = file(LOG, 'a')
+log = open(LOG, 'a')
 
 
 def resync(new_disk):
-    print >> log, 'Start resync(' + new_disk + ')...'
+    print('Start resync(' + new_disk + ')...', file =log)
 
     # Get the degraded md
     mdstat = open(MDSTAT, 'r')
@@ -62,9 +65,10 @@ def resync(new_disk):
     for line1 in mdstat:
         if 'md' in line1:
             md = line1.split()[0]
-            print >> log, MDADM + ' --detail /dev/' + md
+            print(MDADM + ' --detail /dev/' + md, file=log)
             proc = subprocess.Popen([MDADM, '--detail', '/dev/' + md], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, err = proc.communicate()
+            output = output.decode()
             if 'degraded' in output:
                 outputsplit = output.split()
                 outputindex = outputsplit.index('sync')
@@ -85,48 +89,49 @@ def resync(new_disk):
     if not degraded:
         log.flush()
         return md_resync_trigger.ERR_NO_DEGRADED
-        
+
     # STEP #1: Clean/remove the faulty disk from the degraded md
-    print >> log, 'STEP #1 --- ' + time.strftime("%c")
+    print('STEP #1 --- ' + time.strftime("%c"), file =log)
     for md in degraded:
-        print >> log, MDADM + ' /dev/' + md + ' -f /dev/' + new_disk + degraded[md]
+        print(MDADM + ' /dev/' + md + ' -f /dev/' + new_disk + degraded[md], file =log)
         subprocess.call([MDADM, '/dev/' + md, '-f', '/dev/' + new_disk + degraded[md]]) # mark as faulty
-        
-        print >> log, MDADM + ' /dev/' + md + ' -r /dev/' + new_disk + degraded[md]
+
+        print(MDADM + ' /dev/' + md + ' -r /dev/' + new_disk + degraded[md], file =log)
         subprocess.call([MDADM, '/dev/' + md, '-r', '/dev/' + new_disk + degraded[md]]) # remove it
 
-        print >> log, MDADM + ' --zero-superblock /dev/' + new_disk + degraded[md]
+        print(MDADM + ' --zero-superblock /dev/' + new_disk + degraded[md], file =log)
         subprocess.call([MDADM, '--zero-superblock', '/dev/' + new_disk + degraded[md]])
 
     # STEP #2: Copy the partition structure to the new disk
-    print >> log, 'STEP #2 --- ' + time.strftime("%c")
+    print('STEP #2 --- ' + time.strftime("%c"), file =log)
     src_disk = first_active_disk.itervalues().next() # Temporarily, choose the first degraded md
-    print >> log, SGDISK + ' -Z /dev/' + new_disk
+    print(SGDISK + ' -Z /dev/' + new_disk, file =log)
     subprocess.call([SGDISK, '-Z', '/dev/' + new_disk], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # destroy the GPT data structures
-    print >> log, SGDISK + ' -R /dev/' + new_disk + ' /dev/' + src_disk
+    print(SGDISK + ' -R /dev/' + new_disk + ' /dev/' + src_disk, file =log)
     subprocess.call([SGDISK, '-R', '/dev/' + new_disk, '/dev/' + src_disk], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # copy the partition table
-    print >> log, SGDISK + ' -G /dev/' + new_disk
+    print(SGDISK + ' -G /dev/' + new_disk, file =log)
     subprocess.call([SGDISK, '-G', '/dev/' + new_disk], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # randomizes the GUID on the disk
-    print >> log, SYNC
+    print(SYNC, file =log)
     subprocess.call([SYNC])
 
     # STEP #3: Clone the ESP to the new disk
-    print >> log, 'STEP #3 --- ' + time.strftime("%c")
+    print('STEP #3 --- ' + time.strftime("%c"), file =log)
     if 'nvme' in src_disk:
-	print >> log, DD + ' if=/dev/' + src_disk + 'p1 of=/dev/' + new_disk + 'p1' + ' seek=1 skip=1'
-    	subprocess.call([DD, 'if=/dev/' + src_disk + 'p1', 'of=/dev/' + new_disk + 'p1', 'seek=1', 'skip=1'])
+        print(DD + ' if=/dev/' + src_disk + 'p1 of=/dev/' + new_disk + 'p1' + ' seek=1 skip=1', file =log)
+        subprocess.call([DD, 'if=/dev/' + src_disk + 'p1', 'of=/dev/' + new_disk + 'p1', 'seek=1', 'skip=1'])
     else:
-    	print >> log, DD + ' if=/dev/' + src_disk + '1 of=/dev/' + new_disk + '1' + ' seek=1 skip=1'
-    	subprocess.call([DD, 'if=/dev/' + src_disk + '1', 'of=/dev/' + new_disk + '1', 'seek=1', 'skip=1'])
-    print >> log, SYNC
+        print(DD + ' if=/dev/' + src_disk + '1 of=/dev/' + new_disk + '1' + ' seek=1 skip=1', file =log)
+        subprocess.call([DD, 'if=/dev/' + src_disk + '1', 'of=/dev/' + new_disk + '1', 'seek=1', 'skip=1'])
+    print(SYNC, file =log)
     subprocess.call([SYNC])
 
     # STEP #4: Re-create the EFI boot entry
-    print >> log, 'STEP #4 --- ' + time.strftime("%c")
+    print('STEP #4 --- ' + time.strftime("%c"), file =log)
     # get UUID of the src_disk's ESP
-    print >> log, SGDISK + ' --info 1 /dev/' + src_disk
+    print(SGDISK + ' --info 1 /dev/' + src_disk, file =log)
     proc = subprocess.Popen([SGDISK, '--info', '1', '/dev/' + src_disk], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     output, err = proc.communicate()
+    output = output.decode()
     target = output.splitlines()
     target = target[1]
     target = target.split()
@@ -135,14 +140,15 @@ def resync(new_disk):
     if len(uuid) !=36:
         uuid = None
     if not uuid:
-        print >> log, "Error! UUID is NULL."
+        print("Error! UUID is NULL.", file =log)
         return
-    print >> log, 'uuid:' + uuid
+    print('uuid:' + uuid, file =log)
     # get BootOrder, loader, and the Boot Entry name to be removed
-    print >> log, EFIBOOTMGR + ' -v'
+    print(EFIBOOTMGR + ' -v', file =log)
     proc = subprocess.Popen([EFIBOOTMGR, '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = proc.communicate()
-    print >> log, output
+    output = output.decode()
+    print(output, file =log)
     for line in output.splitlines():
         if 'BootOrder' in line:
             orig_order = line[11:]
@@ -153,8 +159,8 @@ def resync(new_disk):
         bootentry_replaced = bootentry_alive[0:-10]
     else:
         bootentry_replaced = bootentry_alive + '-redundant'
-    print >> log, 'orig_order:' + orig_order
-    print >> log, 'loader:' + loader + ', bootentry_replaced:' + bootentry_replaced
+    print('orig_order:' + orig_order, file =log)
+    print('loader:' + loader + ', bootentry_replaced:' + bootentry_replaced, file =log)
     # remove the Boot Entry
     bootnum_removed = ''
     for line in output.splitlines():
@@ -162,15 +168,16 @@ def resync(new_disk):
             continue
         if bootentry_replaced == line[10:line.index('HD(')-1].rstrip():
             bootnum_removed = line[4:8]
-    print >> log, EFIBOOTMGR + ' -b ' + bootnum_removed + ' -B'
+    print(EFIBOOTMGR + ' -b ' + bootnum_removed + ' -B', file =log)
     subprocess.call([EFIBOOTMGR, '-b', bootnum_removed, '-B'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # add a new Boot Entry and get its Boot Num as well
-    print >> log, EFIBOOTMGR + ' -c -d /dev/' + new_disk + ' -p 1 -l ' + loader + ' -L ' + bootentry_replaced
+    print(EFIBOOTMGR + ' -c -d /dev/' + new_disk + ' -p 1 -l ' + loader + ' -L ' + bootentry_replaced, file =log)
     subprocess.call([EFIBOOTMGR, '-c', '-d', '/dev/'+new_disk, '-p', '1', '-l', loader, '-L', bootentry_replaced], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print >> log, EFIBOOTMGR + ' -v'
+    print(EFIBOOTMGR + ' -v', file =log)
     proc = subprocess.Popen([EFIBOOTMGR, '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = proc.communicate()
-    print >> log, output
+    output = output.decode()
+    print(output, file =log)
     bootnum_new = ''
     for line in output.splitlines():
         if 'HD(' not in line:
@@ -178,15 +185,15 @@ def resync(new_disk):
         if bootentry_replaced == line[10:line.index('HD(')-1].rstrip():
             bootnum_new = line[4:8]
     # reorder the new Boot Entry
-    print >> log, 'bootnum_removed:' + bootnum_removed + ', bootnum_new:' + bootnum_new
+    print('bootnum_removed:' + bootnum_removed + ', bootnum_new:' + bootnum_new, file =log)
     new_order = orig_order.replace(bootnum_removed, bootnum_new)
-    print >> log, EFIBOOTMGR + ' -o ' + new_order
+    print(EFIBOOTMGR + ' -o ' + new_order, file =log)
     subprocess.call([EFIBOOTMGR, '-o', new_order])
 
     # STEP #5: Add the partitions
-    print >> log, 'STEP #5 --- ' + time.strftime("%c")
+    print('STEP #5 --- ' + time.strftime("%c"), file =log)
     for md in degraded:
-        print >> log, MDADM + ' --manage /dev/' + md + ' --add /dev/' + new_disk + degraded[md]
+        print(MDADM + ' --manage /dev/' + md + ' --add /dev/' + new_disk + degraded[md], file =log)
         subprocess.call([MDADM, '--manage', '/dev/' + md, '--add', '/dev/' + new_disk + degraded[md]])
 
     return 0
@@ -221,9 +228,10 @@ def backup_esp():
                 break
         mdstat.close()
 
-        print >> log, MDADM + ' --detail /dev/' + md
+        print(MDADM + ' --detail /dev/' + md, file =log)
         proc = subprocess.Popen([MDADM, '--detail', '/dev/' + md], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, err = proc.communicate()
+        output = output.decode()
         for line in output.splitlines():
             if 'active sync' in line:
                 if src[:-1] == line.split()[6][:-1]:
@@ -231,58 +239,58 @@ def backup_esp():
                 else:
                     dst = line.split()[6][:-1] + '1'
         if not part_of_md:
-            print >> log, 'Error! The md changed, and /boot/efi is not correctly mounted. src: ' + src
+            print('Error! The md changed, and /boot/efi is not correctly mounted. src: ' + src, file =log)
             return
-    
+
     # Check if esp backup is necessary (TBD)
 
     # Start the backup
     if src and dst:
-        print >> log, DD + ' if=' + src + ' of=' + dst + ' seek=1 skip=1'
+        print(DD + ' if=' + src + ' of=' + dst + ' seek=1 skip=1', file =log)
         subprocess.call([DD, 'if=' + src, 'of=' + dst, 'seek=1', 'skip=1'])
-        print >> log, SYNC
+        print(SYNC, file =log)
         subprocess.call([SYNC])
 
 
 if __name__ == "__main__":
     # check for the cold-swap case
-    print >> log, 'Check if cold-swap occurs...'
+    print ('Check if cold-swap occurs...', file =log)
     mdstat = open(MDSTAT, 'r')
     content = mdstat.read()
     mdstat.close()
-    print >> log, content
+    print(content, file =log)
 
     if 'nvme' in content:
         for d in ['nvme0n1', 'nvme1n1']:
-            if d not in content:	
-                print >> log, 'python /opt/hpe/lsrrb/bin/md_resync_trigger.py ' + d
+            if d not in content:
+                print('python /opt/hpe/lsrrb/bin/md_resync_trigger.py ' + d, file =log)
                 os.system('python /opt/hpe/lsrrb/bin/md_resync_trigger.py ' + d)
     else:
         for d in ['sda', 'sdb']:
             if d not in content:
-                print >> log, 'python /opt/hpe/lsrrb/bin/md_resync_trigger.py ' + d
+                print('python /opt/hpe/lsrrb/bin/md_resync_trigger.py ' + d, file=log)
                 os.system('python /opt/hpe/lsrrb/bin/md_resync_trigger.py ' + d)
-    
+
     log.flush()
 
     count = 0
     while True:
         # check if there's the resync key
         if os.path.isfile(KEY) == True:
-            f = file(KEY, 'r')
+            f = open(KEY, 'r')
             new_disk = f.readline()
-            print >> log, 'new_disk: ' + new_disk
+            print('new_disk: ' + new_disk, file=log)
             err_code = resync(new_disk)
             if err_code < 0:
-                print >> log, "Error code: " + str(err_code)
+                print("Error code: " + str(err_code), file=log)
 
-            print >> log, 'remove ' + KEY + '\n'
+            print('remove ' + KEY + '\n', file=log)
             os.remove(KEY)
             log.flush()
 
         # regularly backup the ESP
         if 0 == count % BACKUP_ESP_CYCLE and is_clean():
-            print >> log, '[' + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '] backup_esp(), count: ' + str(count)
+            print('[' + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '] backup_esp(), count: ' + str(count), file = log)
             backup_esp()
             log.flush()
 
@@ -290,3 +298,4 @@ if __name__ == "__main__":
         count += 1
 
 log.close()
+

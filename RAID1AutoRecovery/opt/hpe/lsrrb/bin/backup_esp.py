@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # (c) Copyright [2017] Hewlett Packard Enterprise Development LP
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,8 @@
 # This script regularly polls if md recovery is needed at background.
 # Rev 1.2 05/19/2017
 
+from __future__ import print_function
+from __future__ import unicode_literals
 import subprocess
 import os
 import datetime
@@ -32,7 +34,7 @@ LOG = '/var/log/md_auto_resync.log'
 MDSTAT = '/proc/mdstat'
 
 # print to log file
-log = file(LOG, 'a')
+log = open(LOG, 'a')
 
 def backup_esp():
     # Identify the src to do backup
@@ -49,12 +51,12 @@ def backup_esp():
         for line in mdstat:
             if 'active raid1' in line:
                 md = line.split()[0]
-                
         mdstat.close()
 
-        print >> log, MDADM + ' --detail /dev/' + md
+        print(MDADM + ' --detail /dev/' + md, file =log)
         proc = subprocess.Popen([MDADM, '--detail', '/dev/' + md], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, err = proc.communicate()
+        output = output.decode()
         for line in output.splitlines():
             if 'active sync' in line:
                 if src[:-1] == line.split()[6][:-1]:
@@ -62,20 +64,20 @@ def backup_esp():
                 else:
                     dst = line.split()[6][:-1] + '1'
         if not part_of_md:
-            print >> log, 'Error! The md changed, and /boot/efi is not correctly mounted. src: ' + src
+            print('Error! The md changed, and /boot/efi is not correctly mounted. src: ' + src, file =log)
             return
 
     # Check if esp backup is necessary (TBD)
 
     # Start the backup
     if src and dst:
-        print >> log, DD + ' if=' + src + ' of=' + dst + ' seek=1 skip=1'
+        print(DD + ' if=' + src + ' of=' + dst + ' seek=1 skip=1', file =log)
         subprocess.call([DD, 'if=' + src, 'of=' + dst, 'seek=1', 'skip=1'])
-        print >> log, SYNC
+        print(SYNC, file =log)
         subprocess.call([SYNC])
 
 if __name__ == "__main__":
-    print >> log, '[' + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '] backup_esp()'
+    print('[' + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '] backup_esp()', file =log)
     backup_esp()
     log.flush()
 
