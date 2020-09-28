@@ -16,9 +16,19 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 # Rev 1.2 05/19/2017
 #
-if [ ! -d /etc/lsrrb ]; then
-	echo "/etc/lsrrb doesn't exist, lsrrb will not be activated"
-	exit 1
+SGDISK="/sbin/sgdisk"
+if [[ ! -f "$SGDISK" ]]
+then
+    SGDISK="/usr/sbin/sgdisk"
+fi
+if [[ ! -f "$SGDISK" ]]
+then
+    SGDISK="/opt/hpe/lsrrb/bin/sgdisk"
+fi
+
+if [[ ! -d /etc/lsrrb ]]; then
+    echo "/etc/lsrrb doesn't exist, lsrrb will not be activated"
+    exit 1
 fi
 
 BOOTCURRENT=`efibootmgr -v | grep BootCurrent | cut -c 14-`
@@ -29,14 +39,14 @@ else
     ESP_SOURCE_PARTUUID=`echo $ESP_SOURCE_PARTUUID_STRING | cut -d"," -f4 | cut -d")" -f1`
 fi
 
-SDA_PARTUUID=`sgdisk --info 1 /dev/sda | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
-SDB_PARTUUID=`sgdisk --info 1 /dev/sdb | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
+SDA_PARTUUID=`$SGDISK --info 1 /dev/sda | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
+SDB_PARTUUID=`$SGDISK --info 1 /dev/sdb | grep "unique" | tr /A-Z/ /a-z/ | cut -d" " -f4`
 
 
-if [ $SDA_PARTUUID == $ESP_SOURCE_PARTUUID ]; then
+if [[ $SDA_PARTUUID == $ESP_SOURCE_PARTUUID ]]; then
     ESP_SOURCE_PART="/dev/sda1"
 fi
-if [ $SDB_PARTUUID == $ESP_SOURCE_PARTUUID ]; then
+if [[ $SDB_PARTUUID == $ESP_SOURCE_PARTUUID ]]; then
     ESP_SOURCE_PART="/dev/sdb1"
 fi
 
@@ -48,3 +58,4 @@ mount -o defaults,uid=0,gid=0,umask=0077,shortname=winnt $ESP_SOURCE_PART /boot/
 
 /opt/hpe/lsrrb/bin/md_auto_resync.py &
 /opt/hpe/lsrrb/bin/HPEtemp.sh &
+

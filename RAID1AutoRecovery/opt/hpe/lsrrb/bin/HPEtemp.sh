@@ -32,17 +32,18 @@ NC='\033[0m'
 ALERT_LEVEL=60
 while true; do
 DATE=$(date)
-	for disk in $HDDS
-	do
-		if [ -b $disk ]; then
-			HDTEMP=$($SMT -A $disk | grep -i Temperature_Celsius | awk '{ print $10}')
-			if [ $HDTEMP ]; then
-		        echo " $DATE $disk $HDTEMP C " >> $LOG
-		        if [ $HDTEMP -ge $ALERT_LEVEL ]; then
-		           echo -e " ${RED}$DATE URGENT${NC} Check iLO System Temperature: $disk Temperature is $HDTEMP C Passed CRITICAL limit 60 C " >> $LOG
-			fi 
-		fi
-	fi
-	done
+    for disk in $HDDS
+    do
+        if [[ -b $disk ]]; then
+            HDTEMP=$($SMT -A $disk | grep -i Temperature_Celsius | grep 194 | awk '{ print $10}')
+            if [[ $HDTEMP ]]; then
+                echo " $DATE $disk $HDTEMP C " >> $LOG
+                if [[ $HDTEMP -ge $ALERT_LEVEL ]]; then
+                   echo -e " ${RED}$DATE URGENT${NC} Check iLO System Temperature: $disk Temperature is $HDTEMP C Passed CRITICAL limit 60 C " >> $LOG
+                fi
+            fi
+        fi
+    done
 sleep 600
 done
+
