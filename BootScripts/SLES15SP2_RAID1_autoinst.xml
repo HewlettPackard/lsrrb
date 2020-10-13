@@ -55,7 +55,7 @@ efibootmgr -o $MAIN_SUSE,$REDUNDANT_SUSE,$BOOT_ORDER
 
 # Install LSRRB scripts
 echo "Install LSRRB scripts"
-
+ln -s /usr/bin/python3 /usr/bin/python
 wget -P /tmp/ http://172.16.0.100/answers/mdsync/lsrrb-latest-systemd.x86_64.rpm
 rpm -i /tmp/lsrrb-latest-systemd.x86_64.rpm
 
@@ -93,7 +93,7 @@ rpm -i /tmp/lsrrb-latest-systemd.x86_64.rpm
 
       <listentry>
         <alias>Basesystem-Module_15.2-0</alias>
-        <media_url><![CDATA[http://172.16.0.100/mrepo/SLE-15-SP2-Full-Beta2-x86_64/disc1]]></media_url>
+        <media_url><![CDATA[http://172.16.0.100/mrepo/SLE-15-SP2-Full-GM-x86_64/disc1]]></media_url>
         <name>sle-module-basesystem</name>
         <priority config:type="integer">99</priority>
         <product_dir>/Module-Basesystem</product_dir>
@@ -101,7 +101,7 @@ rpm -i /tmp/lsrrb-latest-systemd.x86_64.rpm
 
       <listentry>
         <alias>SLES15-SP2_15.2-0_1</alias>
-        <media_url><![CDATA[http://172.16.0.100/mrepo/SLE-15-SP2-Full-Beta2-x86_64/disc1]]></media_url>
+        <media_url><![CDATA[http://172.16.0.100/mrepo/SLE-15-SP2-Full-GM-x86_64/disc1]]></media_url>
         <name>SLES15-SP2 15.2-0</name>
         <priority config:type="integer">99</priority>
         <product_dir>/Product-SLES</product_dir>
