@@ -1,6 +1,6 @@
 Name:          lsrrb
-Version:       1.2.0
-Release:       6
+Version:       1.3.0
+Release:       1
 License:       GPLv3 
 Group:         System Environment/Daemons
 BuildArch:     x86_64
@@ -29,6 +29,8 @@ This package contains scripts and udev rules to mirror the boot volume on HPE Pr
 %attr(0755, root, root) "/opt/hpe/lsrrb/bin/md_resync_trigger.py"
 %attr(0755, root, root) "/opt/hpe/lsrrb/bin/md_auto_resync.py"
 %attr(0755, root, root) "/opt/hpe/lsrrb/bin/smartctl-static"
+%attr(0755, root, root) "/opt/hpe/lsrrb/bin/gdisk"
+%attr(0755, root, root) "/opt/hpe/lsrrb/bin/sgdisk"
 %dir %attr(0755, root, root) "/opt/hpe/lsrrb/share/"
 %dir %attr(0755, root, root) "/opt/hpe/lsrrb/share/doc"
 %attr(0644, root, root) "/opt/hpe/lsrrb/share/doc/README"
@@ -66,6 +68,8 @@ fi
 
 
 %changelog
+* Sun Oct 12 2020 HPE Linux Development <Linux_SWdeliverables@external.groups.hpe.com> 1.3.0-1
+- python2 to python2/3 compatible
 * Sun Aug 27 2017 HPE Linux Development <Linux_SWdeliverables@external.groups.hpe.com> 1.2.0-6
 - Fix PARTUUID logic to fit recent libefivar change
 * Tue Aug 15 2017 HPE Linux Development <Linux_SWdeliverables@external.groups.hpe.com> 1.2.0-5
