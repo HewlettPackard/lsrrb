@@ -130,7 +130,7 @@ def check(new_disk):
                 output, err = proc.communicate()
                 output = output.decode()
                 size_disk_index = output.split().index("GiB")
-                if min_cap < output.split()[size_disk_index - 1]:
+                if min_cap < float(output.split()[size_disk_index - 1]):
                     min_cap = output.split()[size_disk_index -1]
                     break
     print('new_cap: '+new_cap+', min_cap: '+min_cap, file=log)

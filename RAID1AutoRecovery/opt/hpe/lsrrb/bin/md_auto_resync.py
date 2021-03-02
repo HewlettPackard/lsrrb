@@ -104,7 +104,10 @@ def resync(new_disk):
 
     # STEP #2: Copy the partition structure to the new disk
     print('STEP #2 --- ' + time.strftime("%c"), file =log)
-    src_disk = first_active_disk.itervalues().next() # Temporarily, choose the first degraded md
+    if sys.version_info[0] < 3:
+        src_disk = first_active_disk.itervalues().next() # Temporarily, choose the first degraded md for Python 2.x
+    else:
+        src_disk = next(iter(first_active_disk.values())) # Temporarily, choose the first degraded md
     print(SGDISK + ' -Z /dev/' + new_disk, file =log)
     subprocess.call([SGDISK, '-Z', '/dev/' + new_disk], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # destroy the GPT data structures
     print(SGDISK + ' -R /dev/' + new_disk + ' /dev/' + src_disk, file =log)
