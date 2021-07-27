@@ -8,7 +8,4 @@ http://downloads.linux.hpe.com/SDR/project/lsrrb/
 
 Please check the user guide from below URL:
 
-http://h20564.www2.hpe.com/hpsc/doc/public/display?docId=a00017763en_us (2017/Jun)
-
-For errata found in the 2017/Jun User Guide, please see https://github.com/HewlettPackard/lsrrb/blob/master/Errata.md
-
+https://support.hpe.com/hpesc/public/docDisplay?docLocale=en_US&docId=a00028225en_us (March 2021)
