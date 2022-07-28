@@ -152,6 +152,8 @@ def resync(new_disk):
     output, err = proc.communicate()
     output = output.decode()
     print(output, file =log)
+    bootentry_alive = ''
+    loader = ''
     for line in output.splitlines():
         if 'BootOrder' in line:
             orig_order = line[11:]
