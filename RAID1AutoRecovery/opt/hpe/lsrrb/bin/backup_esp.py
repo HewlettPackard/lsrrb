@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # (c) Copyright [2017] Hewlett Packard Enterprise Development LP
 #
 # This program is free software; you can redistribute it and/or modify it
